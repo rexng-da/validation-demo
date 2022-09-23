@@ -1,0 +1,10 @@
+module Bet where
+
+template Bet 
+  with
+    productId : Int
+    amount : Decimal
+    partnerId : Int
+    bettor : Party
+  where
+    signatory bettor

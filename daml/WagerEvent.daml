@@ -1,0 +1,19 @@
+module WagerEvent where
+
+import DA.Validation
+import Bet
+
+template WagerEvent 
+  with
+    creator : Party
+  where
+    signatory creator
+
+    nonconsuming choice ValidateWagerEvent : Validation Text Bet
+      with
+        bet : Bet
+      controller bet.bettor 
+      do
+        if bet.amount <= 0.0
+        then pure $ invalid "Bet amount cannot be less than or equal to zero"
+        else pure $ ok bet

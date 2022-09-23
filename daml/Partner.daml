@@ -1,0 +1,19 @@
+module Partner where
+
+import DA.Validation
+import Bet
+
+template Partner 
+  with
+    creator : Party
+  where
+    signatory creator
+
+    nonconsuming choice ValidatePartner : Validation Text Bet
+      with
+        bet : Bet
+      controller bet.bettor 
+      do
+        if bet.partnerId <= 0
+        then pure $ invalid "Partner ID cannot be less than zero"
+        else pure $ ok bet

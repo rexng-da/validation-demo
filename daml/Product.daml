@@ -1,0 +1,19 @@
+module Product where
+
+import DA.Validation
+import Bet
+
+template Product 
+  with
+    creator : Party
+  where
+    signatory creator
+
+    nonconsuming choice ValidateProductId : Validation Text Bet
+      with
+        bet : Bet
+      controller bet.bettor 
+      do
+        if bet.productId < 0
+        then pure $ invalid "Product ID cannot be less than zero"
+        else pure $ ok bet
