@@ -2,48 +2,41 @@ module BetDemo where
 
 import Daml.Script
 import DA.Foldable
-import DA.Validation
 import Bet
 import Partner
 import Product
 import WagerEvent
 
--- missing ingredient from DA.Validation
-instance Semigroup (Validation err succ) where
-  Errors xs <> Errors ys = Errors (xs <> ys)
-  Success _ <> x = x
-  x <> Success _ = x
-
 test : Script ()
 test = do
   -- user_setup_begin
-  rex <- allocatePartyWithHint "Rex" (PartyIdHint "Rex")
-  rexId <- validateUserId "rex"
-  createUser (User rexId (Some rex)) [CanActAs rex]
+  partner1 <- allocatePartyWithHint "Partner1" (PartyIdHint "Partner1")
+  hkjc <- allocatePartyWithHint "Hkjc" (PartyIdHint "Hkjc")
   -- user_setup_end
 
   -- set up initial bet, not in ledger yet because it's unvalidated
   let bet = Bet with
           amount = 1.0
           productId = 1
-          partnerId = 1
-          bettor = rex
+          partnerId = 2
+          bettor = hkjc
 
   -- set up initial contracts for WagerEvent, Product, and Partner
-  wagerEvent <- rex `submit` createCmd WagerEvent with
-      creator = rex
+  wagerEvent <- hkjc `submit` createCmd WagerEvent with
+      creator = hkjc
 
-  partner <- rex `submit` createCmd Partner with
-      creator = rex
+  partner <- hkjc `submit` createCmd Partner with
+      partnerId = 1
+      creator = hkjc
 
-  product <- rex `submit` createCmd Product with
-      creator = rex
+  product <- hkjc `submit` createCmd Product with
+      creator = hkjc
 
   -- group all validations as a list of script of validations
   let scripts = [ 
-        (rex `submit` exerciseCmd partner ValidatePartner with bet = bet), 
-        (rex `submit` exerciseCmd product ValidateProductId with bet = bet),
-        (rex `submit` exerciseCmd wagerEvent ValidateWagerEvent with bet = bet) ]
+        (hkjc `submit` exerciseCmd partner ValidatePartner with bet = bet, partnerCreator = hkjc), 
+        (hkjc `submit` exerciseCmd product ValidateProductId with bet = bet),
+        (hkjc `submit` exerciseCmd wagerEvent ValidateWagerEvent with bet = bet) ]
   
   -- lists are traversable, flip it to be a script of lists of validations
   -- and bind the result to 'validations'
