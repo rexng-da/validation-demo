@@ -1,6 +1,8 @@
 module Partner where
 
 import DA.Validation
+import DA.Traversable qualified as T
+import ValidationX
 import Bet
 
 template Partner 
@@ -16,8 +18,23 @@ template Partner
     nonconsuming choice ValidatePartner : Validation Text Bet
       with
         bet : Bet
+        partnerCreator : Party
       controller bet.bettor 
       do
-        if bet.partnerId <= 0
-        then pure $ invalid "Partner ID cannot be less than zero"
-        else pure $ ok bet
+        let partnerContractKey = (partnerCreator, bet.partnerId)
+
+        let validatePartner partner =
+              if bet.partnerId /= partner.partnerId
+              then invalid "Partner ID is invalid for bet"
+              else ok bet
+
+        partnerCidV <- 
+          lookupByKeyV @Partner "Partner contract not found" partnerContractKey
+
+        partnerContract <- T.mapA fetch partnerCidV
+
+        -- This is just monadic bind, but there is no Monad instance
+        -- for Validation
+        case validatePartner <$> partnerContract of
+          Errors err -> pure $ Errors err
+          Success validatedBet -> pure $ validatedBet
