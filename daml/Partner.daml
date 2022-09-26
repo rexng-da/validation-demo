@@ -18,10 +18,9 @@ template Partner
     nonconsuming choice ValidatePartner : Validation Text Bet
       with
         bet : Bet
-        partnerCreator : Party
-      controller bet.bettor 
+      controller creator
       do
-        let partnerContractKey = (partnerCreator, bet.partnerId)
+        let partnerContractKey = (creator, bet.partnerId)
 
         let validatePartner partner =
               if bet.partnerId /= partner.partnerId

@@ -12,7 +12,7 @@ template WagerEvent
     nonconsuming choice ValidateWagerEvent : Validation Text Bet
       with
         bet : Bet
-      controller bet.bettor 
+      controller creator
       do
         if bet.amount <= 0.0
         then pure $ invalid "Bet amount cannot be less than or equal to zero"

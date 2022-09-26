@@ -19,7 +19,7 @@ test = do
           amount = 1.0
           productId = 1
           partnerId = 2
-          bettor = hkjc
+          bettor = partner1
 
   -- set up initial contracts for WagerEvent, Product, and Partner
   wagerEvent <- hkjc `submit` createCmd WagerEvent with
@@ -34,7 +34,7 @@ test = do
 
   -- group all validations as a list of script of validations
   let scripts = [ 
-        (hkjc `submit` exerciseCmd partner ValidatePartner with bet = bet, partnerCreator = hkjc), 
+        (hkjc `submit` exerciseCmd partner ValidatePartner with bet = bet), 
         (hkjc `submit` exerciseCmd product ValidateProductId with bet = bet),
         (hkjc `submit` exerciseCmd wagerEvent ValidateWagerEvent with bet = bet) ]
   

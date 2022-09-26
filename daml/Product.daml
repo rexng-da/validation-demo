@@ -12,7 +12,7 @@ template Product
     nonconsuming choice ValidateProductId : Validation Text Bet
       with
         bet : Bet
-      controller bet.bettor 
+      controller creator 
       do
         if bet.productId < 0
         then pure $ invalid "Product ID cannot be less than zero"
