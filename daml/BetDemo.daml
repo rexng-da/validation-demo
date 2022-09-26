@@ -18,7 +18,7 @@ test = do
   let bet = Bet with
           amount = 1.0
           productId = 1
-          partnerId = 2
+          partnerId = -1
           bettor = partner1
 
   -- set up initial contracts for WagerEvent, Product, and Partner
@@ -26,7 +26,7 @@ test = do
       creator = hkjc
 
   partner <- hkjc `submit` createCmd Partner with
-      partnerId = 1
+      partnerId = -1
       creator = hkjc
 
   product <- hkjc `submit` createCmd Product with
