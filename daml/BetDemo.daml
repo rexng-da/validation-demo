@@ -24,22 +24,19 @@ test = do
 
   -- set up initial bet, not in ledger yet because it's unvalidated
   let bet = Bet with
-          amount = -1.0
-          productId = -1
+          amount = 1.0
+          productId = 1
           partnerId = 1
           bettor = rex
 
   -- set up initial contracts for WagerEvent, Product, and Partner
-  wagerEvent <- rex `submit` do
-    createCmd WagerEvent with
+  wagerEvent <- rex `submit` createCmd WagerEvent with
       creator = rex
 
-  partner <- rex `submit` do
-    createCmd Partner with
+  partner <- rex `submit` createCmd Partner with
       creator = rex
 
-  product <- rex `submit` do
-    createCmd Product with
+  product <- rex `submit` createCmd Product with
       creator = rex
 
   -- group all validations as a list of script of validations
@@ -53,7 +50,7 @@ test = do
   validations <- sequence scripts
 
   -- take advantage of the Semigroup implementation above
-  let result = foldr1 (<>) validations
+  let result = foldl1 (<>) validations
 
   debug result
 
