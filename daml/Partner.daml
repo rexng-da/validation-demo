@@ -6,8 +6,12 @@ import Bet
 template Partner 
   with
     creator : Party
+    partnerId : Int
   where
     signatory creator
+
+    key (creator, partnerId) : (Party, Int)
+    maintainer key._1
 
     nonconsuming choice ValidatePartner : Validation Text Bet
       with
