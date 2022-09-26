@@ -1,0 +1,23 @@
+module ValidationX where
+
+import DA.Validation
+import DA.Foldable qualified as F
+import DA.Traversable qualified as T
+
+-- missing ingredient from DA.Validation
+instance Semigroup (Validation err succ) where
+  Errors xs <> Errors ys = Errors (xs <> ys)
+  Success _ <> x = x
+  x <> Success _ = x
+
+instance F.Foldable (Validation err) where
+    foldr _ z (Errors _) = z
+    foldr f z (Success x) = f x z
+
+instance T.Traversable (Validation err) where
+    mapA _ (Errors xs) = pure $ Errors xs
+    mapA f (Success x) = Success <$> f x
+
+lookupByKeyV : HasLookupByKey t k => Text -> k -> Update (Validation Text (ContractId t))
+lookupByKeyV errorMessage k =
+    (<?> errorMessage) <$> lookupByKey k

@@ -1,19 +1,43 @@
 module Partner where
 
 import DA.Validation
+import DA.Traversable qualified as T
+import ValidationX
 import Bet
 
 template Partner 
   with
     creator : Party
+    partnerId : Int
   where
     signatory creator
+
+    key (creator, partnerId) : (Party, Int)
+    maintainer key._1
 
     nonconsuming choice ValidatePartner : Validation Text Bet
       with
         bet : Bet
-      controller bet.bettor 
+      controller creator
       do
-        if bet.partnerId <= 0
-        then pure $ invalid "Partner ID cannot be less than zero"
-        else pure $ ok bet
+        let partnerContractKey = (creator, bet.partnerId)
+
+        -- Arbitrary validation rule for demo purposes
+        let validatePartner partner =
+              if partnerId < 0
+              then invalid "Partner ID is invalid for bet"
+              else ok bet
+
+        -- Wrap lookupByKey to also treat missing contract as a
+        -- Validation error
+        partnerCidV <- 
+          lookupByKeyV @Partner "Partner contract not found" partnerContractKey
+
+        -- Take advantage that Validation is Traversable
+        partnerContract <- T.mapA fetch partnerCidV
+
+        -- This is just monadic bind, but there is no Monad instance
+        -- for Validation
+        case validatePartner <$> partnerContract of
+          Errors err -> pure $ Errors err
+          Success validatedBet -> pure $ validatedBet
