@@ -1,7 +1,7 @@
 module BetDemo where
 
+import DA.Foldable qualified as F
 import Daml.Script
-import DA.Foldable
 import Bet
 import Partner
 import Product
@@ -43,7 +43,7 @@ test = do
   validations <- sequence scripts
 
   -- take advantage of the Semigroup implementation above
-  let result = foldl1 (<>) validations
+  let result = F.foldl1 (*>) validations
 
   debug result
 

@@ -6,9 +6,7 @@ import DA.Traversable qualified as T
 
 -- missing ingredient from DA.Validation
 instance Semigroup (Validation err succ) where
-  Errors xs <> Errors ys = Errors (xs <> ys)
-  Success _ <> x = x
-  x <> Success _ = x
+    (<>) = (*>)
 
 instance F.Foldable (Validation err) where
     foldr _ z (Errors _) = z
@@ -19,5 +17,5 @@ instance T.Traversable (Validation err) where
     mapA f (Success x) = Success <$> f x
 
 lookupByKeyV : HasLookupByKey t k => Text -> k -> Update (Validation Text (ContractId t))
-lookupByKeyV errorMessage k =
-    (<?> errorMessage) <$> lookupByKey k
+lookupByKeyV errorMessage =
+    ((<?> errorMessage) <$>) . lookupByKey
